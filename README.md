@@ -37,19 +37,26 @@
 
   一个 Engine.IO的url由以下部分组成：
   
+  
  /engine.io/[?]
+ 
  
  - engine.io的路径原则上只能被在它之上的高层次的框架（该框架的协议承载层为engine.io 协议）改变。
  
+ 
  - [?] 询问部分是可选择的，有四种可供选择的关键字：
  
+ 
      - `transport`: 暗示了传输类型的名称。支持的属性值有：polling,flashsocket,websocket。
+     
      - `j`:如果传输类型是`polling`，并且需要JSONP响应，j必须设置为JSONP响应的索引。(j: if the transport is polling but a JSONP response is required, j must be set with the JSONP response index.)
+     
      -`sid`:如果服务器曾经给予客户端一个会话id,那么这个id一定会包含在询问部分（[?]）
+     
      -`b64`:如果客户端不能支持XHR2，`b64=1`将会被通过[?]部分发送给服务器，用于告知服务所有二进制数据要是用base64编码。
     ( xhr2的内容见 http://www.ruanyifeng.com/blog/2012/09/xmlhttprequest_level_2.html)
     
-FAQ: `engine.io部分是可更改的么？`
+FAQ: `engine.io`部分是可更改的么？
 
 可以的。服务器端可以在不同的路径片段下去拦截请求。
 
@@ -124,16 +131,20 @@ It's convention that the path segments remain only that which allows to disambig
 
 在engine.io切换另一个传输连接之前，需要进行测试是否服务器端和客户端可以在这个传输连接上进行通信。如果测试成功，客户端会发送一个upgrade数据包用于请求刷新它在旧连接上的缓存并且切换到新的传输连接上去。
 
-##### 5 noop
+#### 6 noop
 
 一种空操作数据包（noop packet）.主要用于强制一个轮询周期当一个新的websocket连接被接收。
 
 **例**
 
 1 客户端通过新的传输进行连接。
+
 2 客户端发送2probe.
+
 3 服务器端需要接收并相应3probe.
+
 4 客户端接收并发送5.
+
 5 服务器端刷新并关闭旧的连接并切换到新的连接。
 
 
