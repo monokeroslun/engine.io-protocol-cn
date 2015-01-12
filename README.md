@@ -51,11 +51,12 @@
 
 - `transport`: 暗示了传输类型的名称。支持的属性值有：polling,flashsocket,websocket。
      
- - `j`:如果传输类型是`polling`，并且需要JSONP响应，j必须设置为JSONP响应的索引。(j: if the transport is polling but a JSONP response is required, j must be set with the JSONP response index.)
+- `j`:如果传输类型是`polling`，并且需要JSONP响应，j必须设置为JSONP响应的索引。(j: if the transport is polling but a JSONP response is required, j must be set with the JSONP response index.)
      
--`sid`:如果服务器曾经给予客户端一个会话id,那么这个id一定会包含在询问部分（[?]）
+- `sid`:如果服务器曾经给予客户端一个会话id,那么这个id一定会包含在询问部分（[?]）
      
--`b64`:如果客户端不能支持XHR2，`b64=1`将会被通过[?]部分发送给服务器，用于告知服务所有二进制数据要是用base64编码。
+
+- `b64`:如果客户端不能支持XHR2，`b64=1`将会被通过[?]部分发送给服务器，用于告知服务所有二进制数据要是用base64编码。
     ( xhr2的内容见 http://www.ruanyifeng.com/blog/2012/09/xmlhttprequest_level_2.html)
     
 FAQ: `engine.io`部分是可更改的么？
