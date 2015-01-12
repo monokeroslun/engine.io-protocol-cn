@@ -65,7 +65,7 @@ FAQ: 什么决定了URL中要包含的属性？
 一般地，url中仅仅是表明该请求是否由Engine.IO实例来处理，所以仅仅需要engine.io(前缀)和资源。（
 It's convention that the path segments remain only that which allows to disambiguate whether a request should be handled by a given Engine.IO server instance or not. As it stands, it's only the Engine.IO prefix (/engine.io) and the resource (default by default).）
 
-## Encoding
+# Encoding
 
 这里有两种不同的编码格式：
 
@@ -133,21 +133,82 @@ It's convention that the path segments remain only that which allows to disambig
 
 #### 6 noop
 
-一种空操作数据包（noop packet）.主要用于强制一个轮询周期当一个新的websocket连接被接收。
+一种空操作数据包（noop packet）.主要用于当一个新的websocket连接被接收时，强制一个轮询的周期。
 
 **例**
 
 1 客户端通过新的传输进行连接。
 
-2 客户端发送2probe.
+2 客户端发送`2probe`.
 
-3 服务器端需要接收并相应3probe.
+3 服务器端需要接收并响应`3probe`.
 
-4 客户端接收并发送5.
+4 客户端接收并发送 5.
 
 5 服务器端刷新并关闭旧的连接并切换到新的连接。
 
 
+
+## Payload
+
+Payload是指一系列绑定到了一起的编码后的数据包。当只有字符串被发送并且XHR2不被支持时使用，payload编码格式如下：
+
+`<length1>:<packet1>[<length2>:<packet2>[...]]`
+
+length: 数据包的字符长度。
+
+packet: 实际的数据包见上一节（packet）
+
+当XHR2不被支持时，发送二进制数据时我们使用了相同编码原则。将数据使用base64编码成字符串进行发送。为了解码，一个标识符`b`放置在数据包的前面。任意数量的字符串和base64编码的字符串的集合可以用于发送。下面是一个关于base64编码的消息：
+
+`<length of base64 representation of the data +1>:b<packet1 type><packet1 data in b64>[...]`
+
+当XHR2被支持时，我们会使用一种简单的原则，任何数据都会直接编码为二进制数据。所以这些数据可以以二进制的形式在XHR上传送。格式如下：
+
+`<0 for string data, 1 for binary data><Any number of numbers between 0 and 9><The number 255><packet1 (first type,
+then data)>[...]`
+
+(If a combination of UTF-8 strings and binary data is sent, the string values are represented so that each character is written as a character code into a byte.
+
+The payload is used for transports which do not support framing, as the polling protocol for example.)
+
+
+## 传输
+
+一个engine.io服务器必须支持三种传输方式：
+
+1 websocket
+
+2 flashsocket
+
+3 polling : jsonp、xhr
+
+### Polling
+
+轮询传输包含了两个部分：一个是客户端使用get请求从服务器端获取数据。一个是客户端通过使用payload格式的数据包，使用post请求向服务器端发送数据。
+
+### XHR
+
+服务器端必须支持跨域共享的响应。
+
+### JSONP
+
+### websocket
+
+## Transport upgrading
+
+一个连接通常在开始的时候使用轮询的方式（XHR或者JSONP）。客户端侧通常发送一个probe用于测试websocket的支持情况，如果服务器端返回probe,一个升级包（upgrade packet）就会被发送至客户端。
+
+为了确保没有消息丢失，升级包会在已经存在的传输中的缓存被刷新之后进行发送。已经存在的传输终止。
+
+当服务器端收到升级数据包（upgrade packet）,这就意味着这是一个新的传输通道，所有的缓存将会被发送。
+
+
+## Timeouts(超时)
+
+客户端必须要使用`pingTimeout`作为握手的一部分（在`open`数据包中），这样就能够判定服务器端是否未响应。
+
+如果没有上述类型的数据包在超时时间内被接收，客户端会认为socket已经断开。
 
     
    
